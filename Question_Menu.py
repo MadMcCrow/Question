@@ -28,10 +28,8 @@ class Menu(object)  :
 
     def _ask(self)  :
         userinput = -1
-        while userinput is not in range(0, len(self._PossibleAnwsers) -1)
-        userinput = print(self._format())
-
-
+        while userinput not in range(0, len(self._PossibleAnwsers) -1)   :
+            userinput = print(self._format())
 
     def __init__(self):
         super().__init__()
