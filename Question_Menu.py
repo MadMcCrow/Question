@@ -3,6 +3,7 @@
 # Main class for describing a menu
 class Menu(object)  :
 
+    _Screen = None
     
     _Question   = 'DefaultQuestion'
 
@@ -10,64 +11,65 @@ class Menu(object)  :
 
     _MenuSize = 40
 
+    _SelectedIdx = -1
+
+
+    def addlinecentered(self,text):
+        from textwrap import wrap
+        if self._Screen is not None:
+            for t in wrap(text, self._MenuSize - 2)    :
+                self._Screen.addstr("|" + ' ' *int((self._MenuSize - len(text)) /2))
+                self._Screen.addstr(t)
+                self._Screen.addstr( ' ' * int((self._MenuSize - len(text)) /2) + "|" + '\n')
+
     # make text look selected
-    def _selected(self, text)   :
-        return '\x1b[0;30;47m' + text + '\x1b[0m'
+    def _selectedText(self, text)   :
+        import curses
+        self._Screen.addstr("|" + ' ' * int((self._MenuSize - len(text)) /2))
+        self._Screen.addstr(0, 0,text, curses.A_STANDOUT)
+        self._Screen.addstr( ' ' * int((self._MenuSize - len(text)) /2) + "|" + '\n')
+
 
     # format text to build the window :
-    def _format(self, selected = -1)  :
-        from textwrap import wrap
-        text = "+" + "-" * self._MenuSize + "+" + '\n'
-        for quest in wrap(self._Question, self._MenuSize - 2)    :
-             text += "|" + quest.center(self._MenuSize,' ') + "|"  +'\n'
-        text += "|" + str("|").rjust(self._MenuSize + 1) + '\n'
+    def _format(self)  :
+        
+        text = "+" + "-" * (self._MenuSize -2 )+ "+" + '\n'
+        self.addlinecentered(self._Question)
+        self.addlinecentered(" ")
         # the possible answers :
         for idx, anws in enumerate(self._PossibleAnwsers):
             anws = str(idx) + " - " + anws
-            for t in wrap(anws, self._MenuSize - 2)    :
-                if selected in range(0, len(self._PossibleAnwsers) -1)  :
-                    text += "|" + self._selected(t).center(self._MenuSize,' ') + "|"  +'\n'
-                else                                                    :
-                    text += "|" + t.center(self._MenuSize,' ') + "|"  +'\n'
+            if self._SelectedIdx == idx :
+                self._selectedText(anws)
+            else                        :
+                self.addlinecentered(anws)
         # finish the window
-        text += "|" + str("|").rjust(self._MenuSize + 1) + '\n'
-        text += "|" + "select using up and down and press enter" + "|"  +'\n'
-        text += "+" + "-" * self._MenuSize + "+" + '\n'
-        return text
-
-    @staticmethod
-    def _Getch():
-        import sys,tty,termios    
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
+        self.addlinecentered(" ")
+        self.addlinecentered("select using up and down and press enter")
 
     def ask(self)  :
-        from curses import initscr
+        import curses
         from time import sleep
 
-        screen = initscr()
-        screen.clear()
-        screen.addstr(0, 0, self._format())
-        screen.keypad(True)
-        screen.refresh()
-        while(1):
-            k= Menu._Getch()
-            if k=='\x1b[A':
-                    print("up")
-            elif k=='\x1b[B':
-                    print("down")
-            elif k=='\x1b[C':
-                    print("right")
-            elif k=='\x1b[D':
-                    print("left")
-            else:
-                    print(k + " is not an arrow key!")
+        screen = curses.initscr()
+        # let's get the screen update until the user press enter
+        while True:
+            screen.clear()
+            self._format()
+            screen.keypad(True)
+            screen.refresh()
+            while True:   
+                k= screen.getch()
+                if k== curses.KEY_UP:
+                        if self._SelectedIdx - 1 in  range(0, len(self._PossibleAnwsers) -1) :
+                            self._SelectedIdx -= 1
+                            break
+                elif k== curses.KEY_DOWN:
+                        if self._SelectedIdx + 1 in  range(0, len(self._PossibleAnwsers) -1) :
+                            self._SelectedIdx += 1
+                            break
 
     def __init__(self):
         super().__init__()
+        from curses import initscr
+        self._Screen = initscr()

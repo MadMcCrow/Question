@@ -11,7 +11,8 @@ Question enables you to make simple text questions based on the logic : one ques
 
 ## Requierements
 
-youĺl only need  `python3` to use Question
+you'll need  `python3` as well as `curses` to use Question
+on windows you can get curses with `pip install windows-curses`
 
 ## How Can I Help
 
