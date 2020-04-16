@@ -97,15 +97,17 @@ class Prompt(QuestionBase)  :
     # how to interpret user pressing Enter/NewLine 
     def _onEnter(self)  :
         try:
-            print(gatherString())
+            self.gatherString()
         except (RuntimeError, TypeError, NameError):
-            print("ERROR")
-            pass
+            self.cleanup()
+            raise
 
 
-    def __init__(self, Question)  :
+    def __init__(self, Question,initalText = None)  :
         QuestionBase.__init__(self,Question)
         self._InputSize = self._MenuSize -2
         self._CursorPosition = len(self._UserString)
+        if initalText is not None :
+            self._UserString = initalText
 
     

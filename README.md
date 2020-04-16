@@ -8,6 +8,10 @@ Question is a simple TUI (Text User Interface) to make simple interactive prompt
 ## Current Status
 
 Question enables you to make simple text questions based on the logic : one question/ multiple answers / one action per answer 
+it also allows you to make a prompt ot allow the user to type text
+
+an example is available in `Question_Example.py`
+
 
 ## Requierements
 

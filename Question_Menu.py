@@ -11,26 +11,20 @@ class Menu(QuestionBase)  :
 
         _Action = None
 
-        def __init__(self, text, action = None):
+        def __init__(self, action):
             super().__init__()
-            self._Text   = text
-            self._Action = action
-
+            try:
+                self._Text   = action.getstr()
+                self._Action = action
+            except (RuntimeError, TypeError, NameError):
+                self._Text = "Error Invalid Action"
+             
         def getstr(self)    :
             return self._Text
 
-        def __str__(self)   :
-            return self.getstr()
 
-        def DoAction(self)    :
-            try:
-                self._Action.Do()
-            # ignore error based on bad actions : we're not supposed to know your action is meant to not work
-            except (RuntimeError, TypeError, NameError):
-                return False
-            # if we could call Do it's ok
-            finally :
-                return True
+        def getAction(self)    :
+            return self._Action
             
 
 
@@ -42,16 +36,28 @@ class Menu(QuestionBase)  :
         return self._PossibleAnwsers[idx].getstr()
 
     def _execAnswerAction(self, idx)   :
-        return self._PossibleAnwsers[idx].DoAction()
+        try :
+            answer = self._PossibleAnwsers[idx]
+            action = answer.getAction()
+            action.do()
+        # cleanup before failing
+        except (RuntimeError, TypeError, NameError, AttributeError):
+            self.cleanup()
+            print("index was ", idx)
+            print("Anwser was ", answer)
+            print("Action was ", action)
+            print(self._PossibleAnwsers)
+            raise
 
-    def addPossibleAnwser(self,  text, action)   :
+
+    def addPossibleAnwser(self, Answer)   :
         if self._started is True :
             raise Menu.AlreadyStarted("the Menu is already on screen adding on the fly is not supported") 
         else    :
             try :
-                self._PossibleAnwsers.append(Menu.Answer(text, action))
+                self._PossibleAnwsers.append(Answer)
             except (RuntimeError, TypeError, NameError):
-                self._PossibleAnwsers.append(Menu.Answer("Error ", None))
+                self._PossibleAnwsers.append(Menu.Answer(None))
 
   
     # make text look selected
@@ -105,8 +111,9 @@ class Menu(QuestionBase)  :
 
     def _onEnter(self)  :
         try:
-           _execAnswerAction(_SelectedIdx)
-        except (RuntimeError, TypeError, NameError):
-            print("ERROR")
-            pass
+           self._execAnswerAction(self._SelectedIdx)
+        except (RuntimeError, TypeError, NameError) as err:
+            self.cleanup()
+            print("Could not achieve requested action, ", err)
+            raise
 
