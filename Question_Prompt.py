@@ -1,7 +1,7 @@
 from Question_Base import QuestionBase
 
 # Main class for describing a prompt for text
-class Menu(QuestionBase)  :
+class Prompt(QuestionBase)  :
 
     # reference to the curses textpad for input
     _Textpad = None
