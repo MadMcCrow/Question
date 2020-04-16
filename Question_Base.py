@@ -100,14 +100,16 @@ class QuestionBase(object)  :
 
     def ask(self)  :
         #let's begin
-        self.startup()
-        self._SelectedIdx = -1
-        while True:
-            char = self._handleUserInput()
-            if self._checkEnter(char)    :
-                self._onEnter()
-                break
-        self.cleanup()
+        try:
+            self.startup()
+            self._SelectedIdx = -1
+            while True:
+                char = self._handleUserInput()
+                if self._checkEnter(char)    :
+                    self._onEnter()
+                    break
+        finally:
+           self.cleanup()
 
     # initial setup
     # initialize curses
@@ -132,7 +134,8 @@ class QuestionBase(object)  :
 
     #create object with title 
     def __init__(self, Question)  :
-        super.__init__()
+        ''' somehow  super didn't worked ...'''
+        object.__init__(self)
         self._QuestionTitle = Question
 
 

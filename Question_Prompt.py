@@ -49,10 +49,12 @@ class Prompt(QuestionBase)  :
 
 
     def ask(self)  :
+        try:
         #let's begin
-        self.startup()
-        self._SelectedIdx = -1
-        self._Textpad.edit()
-        self._UserString = self._Textpad.gather()
-        self.cleanup()
+            self.startup()
+            self._SelectedIdx = -1
+            self._Textpad.edit()
+            self._UserString = self._Textpad.gather()
+        finally:
+           self.cleanup()
     

@@ -99,7 +99,3 @@ class Menu(QuestionBase)  :
             pass
         finally:
             self._Screen.keypad(False)  
-
-
-    def __init__(self):
-        super().__init__()
