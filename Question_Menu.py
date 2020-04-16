@@ -1,10 +1,7 @@
-
+from Question_Base import QuestionBase
 
 # Main class for describing a menu
-class Menu(object)  :
-
-    class AlreadyStarted(Exception):
-        pass
+class Menu(QuestionBase)  :
 
     class Answer(object)    :
         
@@ -37,15 +34,13 @@ class Menu(object)  :
 
     _PossibleAnwsers = list()
 
-    _Screen = None
-    
-    _Question   = 'DefaultQuestion'
-
-    _MenuSize = 40
-
     _SelectedIdx = -1
-    
-    _started = False
+
+    def _getAnswerText(self, idx)   :
+        return self._PossibleAnwsers[idx].getstr()
+
+    def _execAnswerAction(self, idx)   :
+        return self._PossibleAnwsers[idx].DoAction()
 
     def addPossibleAnwser(self,  text, action)   :
         if self._started is True :
@@ -57,68 +52,11 @@ class Menu(object)  :
                 self._PossibleAnwsers.append(Menu.Answer("Error ", None))
           
 
-
-    @staticmethod
-    def _characterIsEnter(char) :
-        from curses import KEY_ENTER
-        return (char == KEY_ENTER or char == 10 or char == 13)
-
-    def _getAnswerText(self, idx)   :
-        return self._PossibleAnwsers[idx].getstr()
-
-    def _execAnswerAction(self, idx)   :
-        return self._PossibleAnwsers[idx].DoAction()
-
-
-    def _borderline(self)       :
-        from math       import floor
-        from math       import ceil
-        if self._Screen is not None:
-            extraspace = (self._MenuSize) /2
-            self._Screen.addstr("+" + '-' * floor(extraspace))
-            self._Screen.addstr( '-' * ceil(extraspace) + "+" + '\n')
-
-    def _addemptyLine(self) :
-        from textwrap   import wrap
-        from math       import floor
-        from math       import ceil
-        if self._Screen is not None:
-            extraspace = (self._MenuSize) /2
-            self._Screen.addstr("|" + ' ' * floor(extraspace))
-            self._Screen.addstr( ' ' * ceil(extraspace) + "|" + '\n')
-
-
-    # add line centered
-    def _addlinecentered(self,text):
-        from textwrap   import wrap
-        from math       import floor
-        from math       import ceil
-        if self._Screen is not None:
-            for t in wrap(text, self._MenuSize - 2)    :
-                extraspace = (self._MenuSize - len(t)) /2
-                self._Screen.addstr("|" + ' ' * floor(extraspace))
-                self._Screen.addstr(t)
-                self._Screen.addstr( ' ' * ceil(extraspace) + "|" + '\n')
-
-    # make text look selected
-    def _selectedText(self, text)   :
-        from textwrap   import wrap
-        from curses     import A_STANDOUT
-        from math       import floor
-        from math       import ceil
-        if self._Screen is not None:
-            for t in wrap(text, self._MenuSize - 2)    :
-                extraspace = (self._MenuSize - len(t)) /2
-                self._Screen.addstr("|" + ' ' * floor(extraspace))
-                self._Screen.addstr(t, A_STANDOUT)
-                self._Screen.addstr( ' ' * ceil(extraspace) + "|" + '\n')
-
-
     # format text to build the window :
     def _format(self)  :
         
         self._borderline()
-        self._addlinecentered(self._Question)
+        self._addlinecentered(self.getTitleStr())
         self._addemptyLine()
         # the possible answers :
         for idx, anws in enumerate(self._PossibleAnwsers):
@@ -133,63 +71,35 @@ class Menu(object)  :
         self._addlinecentered("select using up and down and press enter")
         self._borderline()
 
-    def ask(self)  :
-        #let's begin
-        self.Startup()
 
-        import curses
-        from time import sleep
-        self._SelectedIdx = -1
+
+    def _handleUserInput(self)  :
+        from curses import KEY_UP
+        from curses import KEY_DOWN
         range_possible = range(0, len(self._PossibleAnwsers) )
+         # let's get the screen update until the user press enter
+        self._Screen.clear()
+        self._format()
+        self._Screen.keypad(True)
+        self._Screen.refresh() 
+        k = self._Screen.getch()
+        if k == KEY_UP:
+            if self._SelectedIdx - 1 in range_possible :
+                self._SelectedIdx -= 1
+        elif k == KEY_DOWN:
+            if self._SelectedIdx + 1 in range_possible :
+                self._SelectedIdx += 1
+        return k
 
-        k = 0
-        # let's get the screen update until the user press enter
-        while not (self._characterIsEnter(k) and self._SelectedIdx in range_possible) :  
-            self._Screen.clear()
-            self._format()
-            self._Screen.keypad(True)
-            self._Screen.refresh() 
-            k= self._Screen.getch()
-            if k == curses.KEY_UP:
-                if self._SelectedIdx - 1 in range_possible :
-                    self._SelectedIdx -= 1
-                    continue
-            elif k == curses.KEY_DOWN:
-                if self._SelectedIdx + 1 in range_possible :
-                    self._SelectedIdx += 1
-                    continue     
-        
-        # handle enter action
+    def _onEnter(self)  :
         try:
            _execAnswerAction(_SelectedIdx)
         except (RuntimeError, TypeError, NameError):
             print("ERROR")
             pass
         finally:
-            self._Screen.keypad(False)
-        
+            self._Screen.keypad(False)  
 
-        # Cleanup after we've asked
-        self.Cleanup()
-            
 
     def __init__(self):
         super().__init__()
-
-    def Startup(self)   :
-        from curses import initscr
-        from curses import noecho
-        if self._Screen is None :
-            self._Screen = initscr()
-            noecho()
-        self._started = True
-
-    def Cleanup(self)   :
-        if self._Screen is not None :
-            import curses
-            self._Screen.clear()
-            curses.nocbreak()
-            curses.echo()
-            curses.endwin()
-        self._started = False
-
