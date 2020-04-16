@@ -15,7 +15,7 @@ class Prompt(QuestionBase)  :
 
 
     # Where are we in the input text
-    _CursorPosition = 3
+    _CursorPosition = 0
     
     # unwanted characters as anwser :
     _ExcludedCharacters = ['^j']
@@ -101,12 +101,11 @@ class Prompt(QuestionBase)  :
         except (RuntimeError, TypeError, NameError):
             print("ERROR")
             pass
-        finally:
-            self._Screen.keypad(False)  
 
 
     def __init__(self, Question)  :
         QuestionBase.__init__(self,Question)
         self._InputSize = self._MenuSize -2
+        self._CursorPosition = len(self._UserString)
 
     

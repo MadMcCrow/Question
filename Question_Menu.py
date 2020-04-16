@@ -99,8 +99,7 @@ class Menu(QuestionBase)  :
         elif char == KEY_DOWN:
             if self._SelectedIdx + 1 in range_possible :
                 self._SelectedIdx += 1
-        elif self._SelectedIdx not in range_possible :
-            # to do anything else you need to first make a valid choice
+        else  :
             raise QuestionBase.InconclusiveInput()
     
 
@@ -110,6 +109,4 @@ class Menu(QuestionBase)  :
         except (RuntimeError, TypeError, NameError):
             print("ERROR")
             pass
-        finally:
-            self._Screen.keypad(False)  
 

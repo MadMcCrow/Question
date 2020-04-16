@@ -97,17 +97,32 @@ class QuestionBase(object)  :
     def _tryInput(self) :
         character = None
         from curses import ungetch
-        try: 
+        try:
             while True:  
-                self._Screen.keypad(True)  
-                self._Screen.clear()
-                self._format()
-                self._Screen.refresh()
-                character = self._Screen.getch()
-                self._handleUserInput(character)      
-                if QuestionBase._characterIsEnter(character):
-                    raise QuestionBase.OnValidateInput()
+                try: 
+                    self._Screen.keypad(True)  
+                    self._Screen.clear()
+                    self._format()
+                    self._Screen.refresh()
+                    character = self._Screen.getch()
+                    self._handleUserInput(character)      
+                    if QuestionBase._characterIsEnter(character):
+                        raise QuestionBase.OnValidateInput()
+
+                #handle low priority errors
+                except QuestionBase.InconclusiveInput:
+                    #maybe it was Enter we failed to consider
+                    if QuestionBase._characterIsEnter(character):
+                        raise QuestionBase.OnValidateInput()
+                    #it's ok the user can be stubborn sometimes
+                    pass
+                except NotImplementedError:
+                    break
             
+        except QuestionBase.OnValidateInput: 
+            self._onEnter()
+            
+
         except KeyboardInterrupt:
             self.cleanup()
             raise
@@ -117,17 +132,6 @@ class QuestionBase(object)  :
         except TypeError:
             self.cleanup()
             raise
-
-        except QuestionBase.InconclusiveInput:
-            #it's ok the user can be stubborn sometimes
-            character = None
-            pass
-
-        except NotImplementedError:
-            pass
-        
-        except QuestionBase.OnValidateInput: 
-            self._onEnter()
     
 
 
@@ -155,10 +159,12 @@ class QuestionBase(object)  :
     def cleanup(self)   :
         if self._Screen is not None :
             import curses
-            self._Screen.clear()
-            self._Screen = None 
             curses.echo()
             curses.endwin()
+            self._Screen.keypad(False)
+            self._Screen.clear()
+            self._Screen = None 
+
             
         self._started = False
 
