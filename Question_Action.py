@@ -4,7 +4,7 @@ class Action(object)  :
 
     _Name = "DefaultAction"
     
-    def _Do(self)   :
+    def Do(self)   :
         raise NotImplementedError()
 
 
