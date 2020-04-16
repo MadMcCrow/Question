@@ -1,4 +1,6 @@
 from Question_Base import QuestionBase
+from Question_Base import BChar
+
 
 # Main class for describing a menu
 class Menu(QuestionBase)  :
@@ -50,12 +52,25 @@ class Menu(QuestionBase)  :
                 self._PossibleAnwsers.append(Menu.Answer(text, action))
             except (RuntimeError, TypeError, NameError):
                 self._PossibleAnwsers.append(Menu.Answer("Error ", None))
-          
+
+  
+    # make text look selected
+    def _selectedText(self, text)   :
+        from textwrap   import wrap
+        from curses     import A_STANDOUT
+        from math       import floor
+        from math       import ceil
+        if self._Screen is not None:
+            for t in wrap(text, self._MenuSize - 2)    :
+                extraspace = (self._MenuSize - len(t)) /2
+                self._Screen.addstr(BChar.V + ' ' * floor(extraspace))
+                self._Screen.addstr(t, A_STANDOUT)
+                self._Screen.addstr( ' ' * ceil(extraspace) + BChar.V + '\n')
+     
 
     # format text to build the window :
     def _format(self)  :
-        
-        self._borderline()
+        self._borderline(top = True)
         self._addlinecentered(self.getTitleStr())
         self._addemptyLine()
         # the possible answers :
@@ -69,27 +84,25 @@ class Menu(QuestionBase)  :
         self._addemptyLine()
         self._addemptyLine()
         self._addlinecentered("select using up and down and press enter")
-        self._borderline()
+        self._borderline(top = False)
 
 
 
-    def _handleUserInput(self)  :
+    def _handleUserInput(self, char)  :
         from curses import KEY_UP
         from curses import KEY_DOWN
         range_possible = range(0, len(self._PossibleAnwsers) )
          # let's get the screen update until the user press enter
-        self._Screen.clear()
-        self._format()
-        self._Screen.keypad(True)
-        self._Screen.refresh() 
-        k = self._Screen.getch()
-        if k == KEY_UP:
+        if char == KEY_UP:
             if self._SelectedIdx - 1 in range_possible :
                 self._SelectedIdx -= 1
-        elif k == KEY_DOWN:
+        elif char == KEY_DOWN:
             if self._SelectedIdx + 1 in range_possible :
                 self._SelectedIdx += 1
-        return k
+        elif self._SelectedIdx not in range_possible :
+            # to do anything else you need to first make a valid choice
+            raise QuestionBase.InconclusiveInput()
+    
 
     def _onEnter(self)  :
         try:
@@ -99,3 +112,4 @@ class Menu(QuestionBase)  :
             pass
         finally:
             self._Screen.keypad(False)  
+

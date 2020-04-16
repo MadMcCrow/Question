@@ -19,5 +19,7 @@ class MainQuestion(Menu)    :
 # Actual demo 
 MainMenu = MainQuestion()
 MainPrompt = MainPrompt()
+
+print("you have typed : ",MainPrompt.gatherString())
 print("that's all folks !")
 
