@@ -3,6 +3,9 @@
 # Main class for describing a menu
 class Menu(object)  :
 
+    class AlreadyStarted(Exception):
+        pass
+
     class Answer(object)    :
         
         _Text = "DEFAULT ANSWER TEXT"
@@ -32,16 +35,28 @@ class Menu(object)  :
             
 
 
+    _PossibleAnwsers = list()
 
     _Screen = None
     
     _Question   = 'DefaultQuestion'
 
-    _PossibleAnwsers = [Answer("default anwser 1"),Answer("default anwser 2") ]
-
     _MenuSize = 40
 
     _SelectedIdx = -1
+    
+    _started = False
+
+    def addPossibleAnwser(self,  text, action)   :
+        if self._started is True :
+            raise Menu.AlreadyStarted("the Menu is already on screen adding on the fly is not supported") 
+        else    :
+            try :
+                self._PossibleAnwsers.append(Menu.Answer(text, action))
+            except (RuntimeError, TypeError, NameError):
+                self._PossibleAnwsers.append(Menu.Answer("Error ", None))
+          
+
 
     @staticmethod
     def _characterIsEnter(char) :
@@ -122,7 +137,6 @@ class Menu(object)  :
         #let's begin
         self.Startup()
 
-
         import curses
         from time import sleep
         self._SelectedIdx = -1
@@ -159,14 +173,8 @@ class Menu(object)  :
         self.Cleanup()
             
 
-        
-
-
-
     def __init__(self):
         super().__init__()
-
-
 
     def Startup(self)   :
         from curses import initscr
@@ -174,6 +182,7 @@ class Menu(object)  :
         if self._Screen is None :
             self._Screen = initscr()
             noecho()
+        self._started = True
 
     def Cleanup(self)   :
         if self._Screen is not None :
@@ -182,4 +191,5 @@ class Menu(object)  :
             curses.nocbreak()
             curses.echo()
             curses.endwin()
+        self._started = False
 
