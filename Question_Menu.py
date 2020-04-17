@@ -32,25 +32,30 @@ class Menu(QuestionBase)  :
 
     _SelectedIdx = -1
 
+    # get the selected idx , in the range of possible answers
     def getChoiceIdx(self)    :
         available_range  = range(0, len(self._PossibleAnwsers))
         return self._SelectedIdx if self._SelectedIdx in available_range  else 0
 
+    # get the answer at selected idx
     def getChoiceAnswer(self) :
         try :
             return self._PossibleAnwsers[self.getChoiceIdx()]
         except IndexError  :
             return Menu.Answer()
 
+    # get the action at selected idx
     def getChoiceAction(self)    :
         try :
-            return self._PossibleAnwsers[self.getChoiceIdx()]
+            return self._PossibleAnwsers[self.getChoiceIdx()].getAction()
         except IndexError  :
             return None
 
+    # get the text to display for answer idx
     def _getAnswerText(self, idx)   :
         return self._PossibleAnwsers[idx].getstr()
 
+    # execute the action at index idx
     def _execAnswerAction(self, idx)   :
         try :
             answer = self._PossibleAnwsers[idx]
@@ -59,6 +64,12 @@ class Menu(QuestionBase)  :
         # Maybe user didn't wanted to do anything thus causing this to fail
         except (RuntimeError, TypeError, NameError, AttributeError):
             pass
+        # We may have no Possible answers
+        except IndexError : 
+            # forward it as a runtime error to be catched upper in the stack
+            raise RuntimeError
+            
+        
 
 
     def addPossibleAnwser(self, Answer)   :
@@ -128,4 +139,9 @@ class Menu(QuestionBase)  :
             self.cleanup()
             print("Could not achieve requested action, ", err)
             raise
+
+    def cleanup(self) :
+        self._PossibleAnwsers = []
+        super().cleanup()
+        
 
