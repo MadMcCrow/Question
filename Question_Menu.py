@@ -56,14 +56,9 @@ class Menu(QuestionBase)  :
             answer = self._PossibleAnwsers[idx]
             action = answer.getAction()
             action.do()
-        # cleanup before failing
+        # Maybe user didn't wanted to do anything thus causing this to fail
         except (RuntimeError, TypeError, NameError, AttributeError):
-            self.cleanup()
-            print("index was ", idx)
-            print("Anwser was ", answer)
-            print("Action was ", action)
-            print(self._PossibleAnwsers)
-            raise
+            pass
 
 
     def addPossibleAnwser(self, Answer)   :
