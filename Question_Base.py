@@ -57,7 +57,7 @@ class QuestionBase(object)  :
             R = (BChar.TR if top else BChar.BR)
             extraspace = (self._MenuSize) /2
             self._Screen.addstr( L + BChar.H * floor(extraspace))
-            self._Screen.addstr( BChar.H * floor(extraspace) + R  + '\n')
+            self._Screen.addstr( BChar.H * ceil(extraspace) + R  + '\n')
 
     # draws an empty line (just the border line on each sides)
     def _addemptyLine(self) :
