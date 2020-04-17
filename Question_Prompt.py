@@ -56,7 +56,7 @@ class Prompt(QuestionBase)  :
             pass
 
     # how to display on screen
-    def _format(self)  :
+    def format(self)  :
             self._borderline(top = True)
             self._addlinecentered(self.getTitleStr())
             self._addemptyLine()
@@ -68,7 +68,7 @@ class Prompt(QuestionBase)  :
 
 
     # how to behave on user input (except enter it's reserved)
-    def _handleUserInput(self, char)  :
+    def handleUserInput(self, char)  :
             from curses import KEY_LEFT
             from curses import KEY_RIGHT
             from curses import KEY_BACKSPACE

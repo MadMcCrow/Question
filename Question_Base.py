@@ -82,11 +82,13 @@ class QuestionBase(object)  :
                 self._Screen.addstr( ' ' * ceil(extraspace) + BChar.V + '\n')
 
     # how to display on screen
-    def _format(self)  :
+    # you need to implement this function to create a new type of Question window
+    def format(self)  :
         raise NotImplementedError()
 
     # how to behave on user input.
-    def _handleUserInput(self, char)  :
+    # you need to implement this function to create a new type of Question window
+    def handleUserInput(self, char)  :
         raise NotImplementedError()
 
     # how to interpret user pressing Enter/NewLine 
@@ -102,10 +104,10 @@ class QuestionBase(object)  :
                 try: 
                     self._Screen.keypad(True)  
                     self._Screen.clear()
-                    self._format()
+                    self.format()
                     self._Screen.refresh()
                     character = self._Screen.getch()
-                    self._handleUserInput(character)      
+                    self.handleUserInput(character)      
                     if QuestionBase._characterIsEnter(character):
                         raise QuestionBase.OnValidateInput()
 
@@ -116,8 +118,6 @@ class QuestionBase(object)  :
                         raise QuestionBase.OnValidateInput()
                     #it's ok the user can be stubborn sometimes
                     pass
-                except NotImplementedError:
-                    break
             
         except QuestionBase.OnValidateInput: 
             self._onEnter()
@@ -133,15 +133,19 @@ class QuestionBase(object)  :
             self.cleanup()
             raise
     
-
-
-
+    def postAskAction(self) :
+        raise NotImplementedError()
 
     def ask(self)  :
-        #let's begin
-        self.startup()
-        self._tryInput()
-        self.cleanup()
+        try:
+            #let's begin
+            self.startup()
+            self._tryInput()
+            self.cleanup()
+            self.postAskAction()
+        except NotImplementedError:
+            pass
+        
 
     # initial setup
     # initialize curses

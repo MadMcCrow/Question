@@ -23,6 +23,9 @@ class PromptB(Prompt)    :
 #demo class for a question menu
 class MainQuestion(Menu)    :
 
+    finalText = str()
+
+    # you can define actions or use postAskAction to define what to do after selection is made
     class OpenPromptA(Action):
         def do(self):
             PromptA()
@@ -30,7 +33,7 @@ class MainQuestion(Menu)    :
     class OpenPromptB(Action):
         def do(self):
             prompt = PromptB()
-            print("of course path was :" + prompt.gatherString())
+            MainQuestion.finalText =str("\nof course path was :" + prompt.gatherString() + "\n")
 
     def __init__(self):
         super().__init__("Example Question")
@@ -41,8 +44,20 @@ class MainQuestion(Menu)    :
         self.addPossibleAnwser(AnswerB)
         self.ask()
 
+    # this another way of implementing the actions
+    '''
+    def postAskAction(self) :
+        if getSelectedIdx() == 0    :
+            prompt = PromptB()
+            finalText =str("\nof course path was : " + prompt.gatherString() + "\n")
+        elif getSelectedIdx() == 1  :
+            prompt = PromptA()
+            finalText =str("\nyou wrote a possible sentence from Perec : " + prompt.gatherString() + "\n")
+        
+    '''
+
 # Actual demo 
 MainMenu = MainQuestion()
-
+print(MainQuestion.finalText)
 print("that's all folks !")
 

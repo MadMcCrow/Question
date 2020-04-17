@@ -11,12 +11,12 @@ class Menu(QuestionBase)  :
 
         _Action = None
 
-        def __init__(self, action):
+        def __init__(self, action = None):
             super().__init__()
             try:
                 self._Text   = action.getstr()
                 self._Action = action
-            except (RuntimeError, TypeError, NameError):
+            except (RuntimeError, TypeError, NameError, AttributeError):
                 self._Text = "Error Invalid Action"
              
         def getstr(self)    :
@@ -31,6 +31,22 @@ class Menu(QuestionBase)  :
     _PossibleAnwsers = list()
 
     _SelectedIdx = -1
+
+    def getChoiceIdx(self)    :
+        available_range  = range(0, len(self._PossibleAnwsers))
+        return self._SelectedIdx if self._SelectedIdx in available_range  else 0
+
+    def getChoiceAnswer(self) :
+        try :
+            return self._PossibleAnwsers[self.getChoiceIdx()]
+        except IndexError  :
+            return Menu.Answer()
+
+    def getChoiceAction(self)    :
+        try :
+            return self._PossibleAnwsers[self.getChoiceIdx()]
+        except IndexError  :
+            return None
 
     def _getAnswerText(self, idx)   :
         return self._PossibleAnwsers[idx].getstr()
@@ -75,7 +91,7 @@ class Menu(QuestionBase)  :
      
 
     # format text to build the window :
-    def _format(self)  :
+    def format(self)  :
         self._borderline(top = True)
         self._addlinecentered(self.getTitleStr())
         self._addemptyLine()
@@ -94,7 +110,8 @@ class Menu(QuestionBase)  :
 
 
 
-    def _handleUserInput(self, char)  :
+    # this is the important function
+    def handleUserInput(self, char)  :
         from curses import KEY_UP
         from curses import KEY_DOWN
         range_possible = range(0, len(self._PossibleAnwsers) )
