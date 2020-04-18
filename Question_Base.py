@@ -42,6 +42,12 @@ class QuestionBase(object)  :
     # size of the menu (width)
     _MenuSize = 50
 
+
+    @staticmethod
+    def textwrapper(text, len) :
+        from textwrap import TextWrapper
+        return  TextWrapper(width=len,replace_whitespace=False).wrap(text)
+
     # useful method to find if user pressed enter
     @staticmethod
     def _characterIsEnter(char) :
@@ -75,7 +81,7 @@ class QuestionBase(object)  :
         from math       import floor
         from math       import ceil
         if self._Screen is not None:
-            for t in wrap(text, self._MenuSize - 2)    :
+            for t in self.textwrapper(text, self._MenuSize - 2)    :
                 extraspace = (self._MenuSize - len(t)) /2
                 self._Screen.addstr(BChar.V + ' ' * floor(extraspace))
                 self._Screen.addstr(t)

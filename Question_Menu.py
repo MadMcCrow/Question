@@ -40,7 +40,7 @@ class Menu(QuestionBase)  :
         from math       import floor
         from math       import ceil
         if self._Screen is not None:
-            for t in wrap(text, self._MenuSize - 2)    :
+            for t in QuestionBase.textwrapper(text, self._MenuSize - 2)    :
                 extraspace = (self._MenuSize - len(t)) /2
                 self._Screen.addstr(BChar.V + ' ' * floor(extraspace))
                 self._Screen.addstr(t, A_STANDOUT)
