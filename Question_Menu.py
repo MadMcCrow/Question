@@ -10,7 +10,7 @@ class Menu(QuestionBase)  :
     _SelectedIdx = -1
 
     def isValidChoice(self) :
-        available_range  = range(0, len(self._PossibleAnwsers)-1)
+        available_range  = range(0, len(self._PossibleAnwsers))
         return self._SelectedIdx in available_range 
 
     # get the selected idx , in the range of possible answers
