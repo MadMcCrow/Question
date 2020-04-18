@@ -10,12 +10,12 @@ class Menu(QuestionBase)  :
     _SelectedIdx = -1
 
     def isValidChoice(self) :
-        available_range  = range(0, len(self._PossibleAnwsers))
+        available_range  = range(0, len(self._PossibleAnwsers)-1)
         return self._SelectedIdx in available_range 
 
     # get the selected idx , in the range of possible answers
     def getChoiceIdx(self)    :
-        return self._SelectedIdx if self.isValidChoice() else 0
+        return self._SelectedIdx
 
     # get the answer at selected idx
     def getChoiceAnswer(self) :
@@ -90,7 +90,6 @@ class Menu(QuestionBase)  :
 
 
     def cleanup(self) :
-        self._PossibleAnwsers = []
         QuestionBase.cleanup(self)
         
 

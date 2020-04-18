@@ -46,7 +46,7 @@ class QuestionBase(object)  :
     @staticmethod
     def textwrapper(text, len) :
         from textwrap import TextWrapper
-        return  TextWrapper(width=len,replace_whitespace=False).wrap(text)
+        return  TextWrapper(width=len,break_long_words= True,drop_whitespace = True, replace_whitespace=False,fix_sentence_endings=True).wrap(text)
 
     # useful method to find if user pressed enter
     @staticmethod
