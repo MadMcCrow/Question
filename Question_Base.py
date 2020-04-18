@@ -107,21 +107,24 @@ class QuestionBase(object)  :
                     self.format()
                     self._Screen.refresh()
                     character = self._Screen.getch()
-                    self.handleUserInput(character)      
                     if QuestionBase._characterIsEnter(character):
                         raise QuestionBase.OnValidateInput()
+                    self.handleUserInput(character)      
 
                 #handle low priority errors
                 except QuestionBase.InconclusiveInput:
-                    #maybe it was Enter we failed to consider
-                    if QuestionBase._characterIsEnter(character):
-                        raise QuestionBase.OnValidateInput()
                     #it's ok the user can be stubborn sometimes
                     pass
-            
-        except QuestionBase.OnValidateInput: 
-            self._onEnter()
-            
+
+                # input was validated
+                except QuestionBase.OnValidateInput: 
+                    try :
+                        self._onEnter()
+                        self.cleanup()
+                        break
+                    except IndexError:
+                        pass
+                
 
         except KeyboardInterrupt:
             self.cleanup()
@@ -145,7 +148,7 @@ class QuestionBase(object)  :
             self.postAskAction()
         except NotImplementedError:
             pass
-        
+
 
     # initial setup
     # initialize curses

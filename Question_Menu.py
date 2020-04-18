@@ -4,83 +4,34 @@ from Question_Base import BChar
 
 # Main class for describing a menu
 class Menu(QuestionBase)  :
-
-    class Answer(object)    :
-        
-        _Text = "DEFAULT ANSWER TEXT"
-
-        _Action = None
-
-        def __init__(self, action = None):
-            super().__init__()
-            try:
-                self._Text   = action.getstr()
-                self._Action = action
-            except (RuntimeError, TypeError, NameError, AttributeError):
-                self._Text = "Error Invalid Action"
-             
-        def getstr(self)    :
-            return self._Text
-
-
-        def getAction(self)    :
-            return self._Action
             
 
-
-    _PossibleAnwsers = list()
-
+    _PossibleAnwsers = []
     _SelectedIdx = -1
+
+    def isValidChoice(self) :
+        available_range  = range(0, len(self._PossibleAnwsers))
+        return self._SelectedIdx in available_range 
 
     # get the selected idx , in the range of possible answers
     def getChoiceIdx(self)    :
-        available_range  = range(0, len(self._PossibleAnwsers))
-        return self._SelectedIdx if self._SelectedIdx in available_range  else 0
+        return self._SelectedIdx if self.isValidChoice() else 0
 
     # get the answer at selected idx
     def getChoiceAnswer(self) :
         try :
             return self._PossibleAnwsers[self.getChoiceIdx()]
         except IndexError  :
-            return Menu.Answer()
-
-    # get the action at selected idx
-    def getChoiceAction(self)    :
-        try :
-            return self._PossibleAnwsers[self.getChoiceIdx()].getAction()
-        except IndexError  :
-            return None
+            return "IndexError :No Valid Answer selected"
 
     # get the text to display for answer idx
     def _getAnswerText(self, idx)   :
         return self._PossibleAnwsers[idx].getstr()
-
-    # execute the action at index idx
-    def _execAnswerAction(self, idx)   :
-        try :
-            answer = self._PossibleAnwsers[idx]
-            action = answer.getAction()
-            action.do()
-        # Maybe user didn't wanted to do anything thus causing this to fail
-        except (RuntimeError, TypeError, NameError, AttributeError):
-            pass
-        # We may have no Possible answers
-        except IndexError : 
-            # forward it as a runtime error to be catched upper in the stack
-            raise RuntimeError
             
-        
-
-
-    def addPossibleAnwser(self, Answer)   :
-        if self._started is True :
-            raise Menu.AlreadyStarted("the Menu is already on screen adding on the fly is not supported") 
-        else    :
-            try :
-                self._PossibleAnwsers.append(Answer)
-            except (RuntimeError, TypeError, NameError):
-                self._PossibleAnwsers.append(Menu.Answer(None))
-
+    # Set the anwsers 
+    def setAvailableAnswers(self, listAnswers)  :
+        if isinstance(listAnswers,list)   :
+            self._PossibleAnwsers = listAnswers
   
     # make text look selected
     def _selectedText(self, text)   :
@@ -103,7 +54,7 @@ class Menu(QuestionBase)  :
         self._addemptyLine()
         # the possible answers :
         for idx, anws in enumerate(self._PossibleAnwsers):
-            anws = str(idx) + " - " + anws.getstr()
+            anws = str(idx) + " - " + str(anws)
             if self._SelectedIdx == idx :
                 self._selectedText(anws)
             else                        :
@@ -133,15 +84,13 @@ class Menu(QuestionBase)  :
     
 
     def _onEnter(self)  :
-        try:
-           self._execAnswerAction(self._SelectedIdx)
-        except (RuntimeError, TypeError, NameError) as err:
-            self.cleanup()
-            print("Could not achieve requested action, ", err)
-            raise
+        if not self.isValidChoice():
+            raise IndexError
+        
+
 
     def cleanup(self) :
         self._PossibleAnwsers = []
-        super().cleanup()
+        QuestionBase.cleanup(self)
         
 
